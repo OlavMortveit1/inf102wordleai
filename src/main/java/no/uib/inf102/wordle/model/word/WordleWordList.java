@@ -87,8 +87,15 @@ public class WordleWordList {
 	 * 
 	 * @param feedback
 	 */
-	public void eliminateWords(WordleWord feedback) {
-		//TODO implement this
+	public void eliminateWords(WordleWord feedback) { //O(m*k) 
+		List<String> feedbackAnswers = new ArrayList<>();
+		for (String answer : possibleAnswers){ //O(m)
+			if (WordleWord.isPossibleWord(answer, feedback)){ //O(k)
+				feedbackAnswers.add(answer); //O(1)
+			}
+		}
+		possibleAnswers = feedbackAnswers;
+		
 	}
 
 	/**

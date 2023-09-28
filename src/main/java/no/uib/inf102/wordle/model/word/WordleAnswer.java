@@ -1,5 +1,6 @@
 package no.uib.inf102.wordle.model.word;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import no.uib.inf102.wordle.resources.GetWords;
@@ -77,19 +78,37 @@ public class WordleAnswer {
      * @param answer
      * @return
      */
-    public static WordleWord matchWord(String guess, String answer) {
+    public static WordleWord matchWord(String guess, String answer) { 
         int wordLength = answer.length();
         if (guess.length() != wordLength)
             throw new IllegalArgumentException("Guess and answer must have same number of letters but guess = " + guess
                     + " and answer = " + answer);
 
-        //TODO: fix this method
-        
-        AnswerType[] feedback = new AnswerType[5];
-        for (int i=0; i<wordLength; i++) {
-            feedback[i] = AnswerType.WRONG;
+        HashMap<Character, Integer> remainingOccurance = new HashMap<Character, Integer>();
+        for (char letter : answer.toCharArray()){ 
+            remainingOccurance.put(letter, remainingOccurance.getOrDefault(letter, 0) +1); 
         }
 
-        return new WordleWord(guess,feedback);
+        AnswerType[] feedback = new AnswerType[5];
+        for (int i=0; i<wordLength; i++) { 
+            char guessLetter = guess.charAt(i);
+            char answerLetter = answer.charAt(i);
+            if(guessLetter == answerLetter){
+                feedback[i] = AnswerType.CORRECT;
+                remainingOccurance.put(guessLetter, remainingOccurance.get(guessLetter)-1);
+            }}
+        for (int j = 0; j<wordLength; j++) { 
+            char guessLetter = guess.charAt(j);
+            if(feedback[j] == null && remainingOccurance.containsKey(guessLetter) && remainingOccurance.get(guessLetter)>0){
+                feedback[j] = AnswerType.WRONG_POSITION;
+                remainingOccurance.put(guessLetter, remainingOccurance.get(guessLetter)-1);
+        }
+         else if(feedback[j] == null) {
+                feedback[j] = AnswerType.WRONG;
+            }     
+        }        
+        
+
+        return new WordleWord(guess, feedback);
     }
 }
