@@ -1,6 +1,5 @@
 package no.uib.inf102.wordle.controller.AI;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import no.uib.inf102.wordle.model.word.WordleWord;
@@ -30,7 +29,7 @@ public class MyAI implements IStrategy{
     
      /**
      * Finds the frequency of each letter in each position of the possible words
-     * @return
+     * @return a hashmap with the frequency of each letter in each position
      */
     private HashMap<Integer,HashMap<Character, Integer>> letterFrequencyPos(){ 
         HashMap<Integer,HashMap<Character, Integer>> letterOccurenceInPos = new HashMap<>();
@@ -55,7 +54,7 @@ public class MyAI implements IStrategy{
     /**
      * Finds the word within the possible words which has the highest expected
      * number of green matches.
-     * @return
+     * @return the word with the highest expected number of green matches
      */
     private String bestStartGuess(){ 
         HashMap<Integer,HashMap<Character, Integer>> letterOccurenceInPos =  letterFrequencyPos();
@@ -75,11 +74,12 @@ public class MyAI implements IStrategy{
                 bestScore = score;
                 bestGuess = word;
             }
-            
         }
-        
         return bestGuess;
-    }
-        
 
+    }
+
+    
 }
+   
+

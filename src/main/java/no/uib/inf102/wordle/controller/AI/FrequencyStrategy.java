@@ -1,6 +1,9 @@
 package no.uib.inf102.wordle.controller.AI;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -23,9 +26,9 @@ public class FrequencyStrategy implements IStrategy {
     @Override
     public String makeGuess(WordleWord feedback) {
         if (feedback != null){
-            guesses.eliminateWords(feedback); //O(m*k)
+            guesses.eliminateWords(feedback); 
         }
-        return bestStartGuess(); //O(m*k)
+        return bestStartGuess(); 
         
     
     }
@@ -36,57 +39,96 @@ public class FrequencyStrategy implements IStrategy {
     }
 
     /**
-     * Finds the frequency of each letter in each position of the possible words
-     * @return
+     * Finds the frequency of each letter in the possible words
+     * @return a hashmap with the frequency of each letter
      */
-    private HashMap<Integer,HashMap<Character, Integer>> letterFrequencyPos(){ //O(m*k)
-        HashMap<Integer,HashMap<Character, Integer>> letterOccurenceInPos = new HashMap<>();
-        for (String word : guesses.possibleAnswers()){ //O(m)
-            for (int i = 0; i<word.length(); i++){ //O(k)
-                char letter = word.charAt(i);
-                if (!letterOccurenceInPos.containsKey(i)){
-                    letterOccurenceInPos.put(i, new HashMap<Character, Integer>());
-                }
-                if (!letterOccurenceInPos.get(i).containsKey(letter)){
-                    letterOccurenceInPos.get(i).put(letter, 1);
+    private HashMap<Character, Integer> letterFrequency(){
+        HashMap<Character, Integer> letterOccurence = new HashMap<>();
+        for (String word : guesses.possibleAnswers()){ 
+            for (char letter : word.toCharArray()){ 
+                if (!letterOccurence.containsKey(letter)){ 
+                    letterOccurence.put(letter, 1); 
                 }
                 else {
-                    letterOccurenceInPos.get(i).put(letter, letterOccurenceInPos.get(i).get(letter)+1);
+                    letterOccurence.put(letter, letterOccurence.get(letter)+1); 
                 }
             }
         }
-        return letterOccurenceInPos;
+        return letterOccurence;
 
     }
-    
+
     /**
-     * Finds the word within the possible words which has the highest expected
+     * Finds the words within the possible words which has the highest expected
      * number of green matches.
-     * @return
+     * @return one of the words with the highest expected number of green matches.
      */
-    private String bestStartGuess(){ //O(m*k)
-        HashMap<Integer,HashMap<Character, Integer>> letterOccurenceInPos =  letterFrequencyPos(); //O(m*k)
+    private String bestStartGuess(){ 
+        HashMap<Character, Integer> letterOccurence = letterFrequency(); 
         List<String> possibleAnswers = guesses.possibleAnswers(); 
-        String bestGuess = "";
         int bestScore = 0;
-        for (String word : possibleAnswers){ //O(m)
+
+        HashMap<Integer, HashSet<Character>> frequency = new HashMap<>();
+        for (char letter : letterOccurence.keySet()){ 
+            int freq = letterOccurence.get(letter);
+            if (frequency.containsKey(freq)){
+                frequency.get(freq).add(letter);
+            }
+            else {
+                HashSet<Character> letters = new HashSet<>();
+                letters.add(letter);
+                frequency.put(freq, letters);
+            }
+
+        }
+        List<String> startWords = new ArrayList<>();
+        List<Integer> frequencyList = new ArrayList<>(frequency.keySet());
+        Collections.sort(frequencyList); 
+        Collections.reverse(frequencyList); 
+        List<Character> letters = new ArrayList<>();
+        for (int freq : frequencyList){ 
+            letters.addAll(frequency.get(freq)); 
+            if(letters.size() == 8){
+                break;
+            }
+        }
+        for (String word : possibleAnswers){ 
+            List<Character> lettersInWord = checkLettersInWord(word); 
             int score = 0;
-            for (int i = 0; i < word.length(); i++){ //O(k)
-                char letter = word.charAt(i);
-                if(letterOccurenceInPos.containsKey(i) && letterOccurenceInPos.get(i).containsKey(letter)){
-                    score += letterOccurenceInPos.get(i).get(letter);
+            for(int i = 0; i < word.length(); i++){ 
+                char letter = lettersInWord.get(i);
+                if (letters.contains(letter)){
+                    score++;
                 }
-                
             }
-            if (score > bestScore){
+            if (score == bestScore){
+                startWords.add(word);
+            }
+
+            else if (score > bestScore){
+                startWords.clear();
+                startWords.add(word);
                 bestScore = score;
-                bestGuess = word;
             }
+
+        }
+        return startWords.get(0);
+   
+    }
+
+    /**
+     * Checks which letters are in the word
+     * @param word the word to check
+     * @return a list of the letters in the word
+     */
+    private List<Character> checkLettersInWord(String word) {
+        List<Character> letters = new ArrayList<>();
+        for (int i = 0; i < word.length(); i++){ 
+            char letter = word.charAt(i);
+            letters.add(letter);
             
         }
-        return bestGuess;
+        return letters;
     }
-
-
-   
+    
 }

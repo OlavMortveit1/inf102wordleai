@@ -29,12 +29,11 @@ The runtime should be expressed using these three parameters:
     * *Insert description of why the method has the given runtime*
     In makeGuess we have two methods, eliminateWords(WordleWord feedback) and bestStartGuess().
     We know that eliminateWords has a runtime of O(m*k), so we just have to find the runtime of bestStartGuess().
-    In bestStartGuess() we call the method frequencyPos() which has a double for-loop which first goes through 
+    In bestStartGuess() we call the method letterFrequency() which has a double for-loop which first goes through 
     m and then k. The rest of the method uses operations on a hashmap which all have an expected runtime of O(1).
-    Thus, frequencyPos() has a runtime of O(m*k). Other than this bestStartGuess() goes through a double for-loop, 
-    the first for-loop goes over m, and the seconds goes over k, which makes the total runtime of bestStartGuess() O(m*k).
-    Therefore, since makeGuess calls both bestStartGuess() and eliminateWords(WordleWord feedback), which both have an 
-    expected runtime of O(m*k), the expected runtime of makeGuess is O(m*k), which again can be argumentet to be O(m).
+    Other than that we have a double for-loop in bestStartGuess(), the rest of the method does not matter for the 
+    total runtime. The double for-loop goes over m and k, and thus the expected runtime is O(m*k). 
+   
     
 
 # Task 4 - Make your own (better) AI
@@ -42,3 +41,8 @@ For this task you do not need to give a runtime analysis.
 Instead, you must explain your code. What was your idea for getting a better result? What is your strategy?
 
 *Write your answer here*
+My idea was to better my FrequencyStrategy. In my FrequencyStrategy I made a list that finds the words with the 8 most popular characters,
+and then I just choose the first one. In MyAI I deicded to make a method that finds the frequency of the letters in each position (letterFrequencyPos()),
+and used that to find the word with the largest total score. To find the score of a word, we check each letter in the word and compare it to how many times 
+it exists in that position in the possibleAnswers. We do all of this in the method bestStartGuess() and return the word which has the largest total score. 
+Thus, we get the word "slate" and a 3,5 average guesses, which is a big imporvement from FrequencyStrategy. 
